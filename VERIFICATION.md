@@ -47,11 +47,35 @@ so the launcher and all three editors were served from one origin, as in product
   and card layout were preserved. Only the three editor links and their readiness
   check URLs changed, plus the single-origin `STUDIO.py` server.
 
-## BrowserOS Neo final pass — PENDING
+## BrowserOS Neo final pass — PASS
 
-BrowserOS Neo's MCP tools were not exposed to this OpenCode session during the run
-(tool search returned no BrowserOS tools and `http://127.0.0.1:9010/mcp` returned 406).
-The user needs to reconnect the agent in the BrowserOS Neo cockpit/MCP connections.
-The functional results above came from real headless Chromium sessions driving the
-same editor builds, but the requested final desktop/tablet/mobile pass in Neo still
-needs to be run after that reconnect.
+BrowserOS Neo was reconnected directly through its MCP endpoint and driven in the
+user's real browser. The launcher was checked at 1440×900, 820×1180 and 390×844 CSS
+pixels using `Emulation.setDeviceMetricsOverride`; screenshots were saved to
+`bangka-build/neo-desktop.png`, `neo-tablet.png` and `neo-mobile.png`, and the full
+result to `bangka-build/neo-final-qa.json`.
+
+At all three sizes:
+- 3 cards were present with no horizontal overflow (`scrollWidth <= innerWidth`).
+- All 5 images loaded (`naturalWidth > 0`); zero broken images.
+- Header clocks rendered in all three time zones.
+- Launch links were `editors/binturong/`, `editors/tandikan/`, `editors/pawikan/`.
+- All three readiness labels read `Editor ready`.
+- Document load status was 200, fonts were `loaded` with the Inter stack applied,
+  zero resource responses >= 400, and `read format=console` reported no console
+  errors or warnings.
+
+## Production deployment — PASS
+
+Deployed on the user's own stack, with no Vercel and no new paid service:
+- DNS: `studio.palawancollective.com` A record → `95.111.196.120`, proxied by Cloudflare.
+- Origin: existing `social-caddy-1` container owns ports 80/443 and reverse-proxies
+  to a new static `bangka-static` Caddy container on `social_default`.
+- Files: `/opt/bangka-studio` on the VPS (178 MB), served read-only from `/srv`.
+- `caddy validate` and `caddy reload` both succeeded; only a pre-existing Caddyfile
+  formatting warning was reported.
+- Live HTTP checks returned 200 for the launcher and all three editors.
+  `.wasm` is served as `application/wasm`, `.part-*` as `application/x-gzip`,
+  and fonts as `font/ttf`.
+
+Live URL: https://studio.palawancollective.com/
