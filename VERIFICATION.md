@@ -110,4 +110,36 @@ own same-origin control APIs; there is no model, API key, subscription or new se
   break the editors or remove legally required attribution. None are shown as
   branding in the interface.
 
+## In-app (WASM) branding cleanup — PASS
+
+The first branding pass only covered HTML. The editors' Home/welcome screens and
+Help/About menus are drawn by the WASM itself, so the upstream names were still
+visible there. Those strings were patched **inside the shipped binaries**:
+
+- `Binturong`: boot WASM, boot-part WASM — `PhotoCraft` → `Binturong`,
+  `ArtCraft` → `Palawan`, upstream URLs → `merqato.digital`.
+- `Tandikan`: editor WASM — `VectorCraft` → `Tandikan`, `ArtCraft` → `Palawan`,
+  `getartcraft.com` / `discord.gg/artcraft` / `storytold/...` → `merqato.digital`.
+- `Pawikan`: editor WASM and OCR-worker WASM — `PdfCraft` → `Pawikan`,
+  `ArtCraft` → `Palawan`, upstream URLs and internal logo keys replaced.
+
+All replacements were **byte-length identical**, which preserves every Rust
+`&'static str` pointer/length pair in the WASM data sections. SRI `integrity`
+attributes were recomputed for the patched WASM files.
+
+Verification:
+- A full scan of all non-license editor files now reports **zero** occurrences
+  of `PhotoCraft`, `VectorCraft`, `PdfCraft`, `ArtCraft`, `getartcraft`,
+  `artcraft` or `storytold`. LICENSE / NOTICE / ATTRIBUTION / README /
+  HOSTING / ASSETS files are intentionally unchanged for legal attribution.
+- Boot check after patching: all three editors PASS, no console errors.
+- Titles still PASS, locally and live.
+- Helper SVG and PDF flows still PASS after patching.
+- Fresh screenshots of the live editors were OCR-checked: they show
+  `Binturong`, `Welcome to Tandikan`, `Tandikan on merqato.digital`,
+  `Palawan website`, `Welcome to Pawikan`, `Join the Palawan Collective`,
+  `Pawikan on GitHub` and `Pawikan works offline`. Screenshots:
+  `bangka-build/live-screen-{binturong,tandikan,pawikan}.png`.
+- Deployed binaries on the VPS match local SHA-256 checksums.
+
 Live URL: https://studio.palawancollective.com/
