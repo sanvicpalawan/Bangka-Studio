@@ -142,4 +142,51 @@ Verification:
   `bangka-build/live-screen-{binturong,tandikan,pawikan}.png`.
 - Deployed binaries on the VPS match local SHA-256 checksums.
 
+## Transfer compression + edge caching — PASS
+
+No editor/application code was changed. Goal was to reduce first-open and repeat
+download time for the large WASM engines.
+
+Measured origin (Caddy `bangka-static` file-server) transfer sizes with
+`Accept-Encoding: gzip`:
+
+| File | Raw | Gzipped | Reduction |
+| --- | --- | --- | --- |
+| Tandikan editor WASM | 89,278,894 | 34,021,434 | 62% |
+| Pawikan editor WASM | 60,639,389 | 22,851,949 | 62% |
+| Binturong split part (already gzip on disk) | 16,048,067 | 16,048,067 | 0% |
+
+Findings:
+- The origin was **already** compressing with gzip (62% on both raw WASMs).
+  Brotli is not compiled into either Caddy binary in this stack (`encode br`
+  fails with `module not registered`), so no Brotli change was made.
+- Cloudflare zone has `brotli: on`, `cache_level: aggressive`, but `.wasm`
+  responses were `cf-cache-status: DYNAMIC` — Cloudflare does not treat `.wasm`
+  as cacheable by default, so every editor load went back to the VPS. A small
+  `.js` on the same host returned `HIT`, confirming the file-type cause.
+
+Change made (Cloudflare configuration only, no files deployed):
+- Added Cache Rule `Bangka Studio editor binaries cache`
+  (ruleset `8851b42e5a744447960713921249d921`, phase
+  `http_request_cache_settings`) matching only:
+  `http.host eq "studio.palawancollective.com" and (path extension "wasm" or path contains ".part-")`.
+  Action: `set_cache_settings` with `cache: true`, `edge_ttl: respect_origin`,
+  `browser_ttl: respect_origin`.
+
+Verification:
+- Launcher and editor HTML still `cf-cache-status: DYNAMIC` / `Cache-Control:
+  no-cache` — unchanged, so branding/HTML updates still go live immediately.
+- All five editor binaries (boot WASMs, editor WASMs, OCR worker, split part)
+  went `MISS` → `HIT`, then stayed `HIT` on later requests.
+- The split part still has **no** `Content-Encoding` header (it is already
+  gzipped on disk), so it is not double-compressed.
+- `Content-Type` is still `application/wasm` for WASMs and `application/x-gzip`
+  for the part; SRI hash for the live Binturong boot WASM matches locally.
+- Local boot check after the change: all three editors PASS with correct titles.
+- Live diagnostic for Binturong: all editor files HTTP 200, correct MIME types
+  and encodings, **0 network failures and 0 console errors**. Boot waited past
+  the timeout only because this QA machine's download from Cloudflare is
+  ~17 KB/s (5.2 MB in 300 s for the 16 MB part file); the same files boot fine
+  locally. This is a local network limitation, not a broken response.
+
 Live URL: https://studio.palawancollective.com/
