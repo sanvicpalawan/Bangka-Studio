@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <title>PhotoCraft</title>
+  <title>Binturong</title>
+  <script>
+  (()=>{const name='Binturong';const d=Object.getOwnPropertyDescriptor(Document.prototype,'title');Object.defineProperty(Document.prototype,'title',{configurable:true,enumerable:d?d.enumerable:true,get:()=>name,set(){const t=document.querySelector('title');if(t)t.textContent=name;}});const fix=()=>{const t=document.querySelector('title');if(t&&t.textContent!==name)t.textContent=name};fix();setInterval(fix,250);})();
+  </script>
   
 <script type="module">
 import init, * as bindings from './photocraft-web-boot-f1b57f4718fcff8.js';
@@ -41,13 +44,13 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 <body>
   <canvas id="photocraft_canvas"></canvas>
   <div id="photocraft_loading">
-    <p>Loading PhotoCraft&hellip;</p>
-    <p id="photocraft_stalled">This is taking longer than usual. If PhotoCraft doesn't start, its files may have failed to
+    <p>Loading Binturong&hellip;</p>
+    <p id="photocraft_stalled">This is taking longer than usual. If Binturong doesn't start, its files may have failed to
       download or come from a different version of this page. <a href="">Reload</a> to try again; the browser
       console lists what failed.</p>
   </div>
   <div id="photocraft_stopped" hidden role="alert">
-    <p><strong>PhotoCraft stopped.</strong></p>
+    <p><strong>Binturong stopped.</strong></p>
     <p>Changes since the last save in this tab can't be recovered. <a href="">Reload</a> to start again.</p>
     <p id="photocraft_stopped_detail"></p>
   </div>

@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PdfCraft</title>
+    <title>Pawikan</title>
+    <script>
+    (()=>{const name='Pawikan';const d=Object.getOwnPropertyDescriptor(Document.prototype,'title');Object.defineProperty(Document.prototype,'title',{configurable:true,enumerable:d?d.enumerable:true,get:()=>name,set(){const t=document.querySelector('title');if(t)t.textContent=name;}});const fix=()=>{const t=document.querySelector('title');if(t&&t.textContent!==name)t.textContent=name};fix();setInterval(fix,250);})();
+    </script>
     
 <script type="module">
 import init, * as bindings from './pdfcraft-web-dbf16682ba914f2f.js';
