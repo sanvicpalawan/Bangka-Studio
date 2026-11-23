@@ -78,4 +78,36 @@ Deployed on the user's own stack, with no Vercel and no new paid service:
   `.wasm` is served as `application/wasm`, `.part-*` as `application/x-gzip`,
   and fonts as `font/ttf`.
 
+## Optional quick helper — PASS
+
+A small, free, rule-based help panel was added to the launcher. It uses the editors'
+own same-origin control APIs; there is no model, API key, subscription or new service.
+
+- SVG flow (`bangka-build/helper-flow.mjs`): opened Tandikan from the launcher,
+  created a document, added the sample rectangle via `shape.rectangle`, and exported
+  `banka-studio-export.svg` through the launcher's Download SVG button. The child
+  editor reported history `["Rectangle"]` and the file appeared in the browser
+  downloads. Verdict: `HELPER PASS`.
+- PDF flow (`bangka-build/helper-pdf-flow.mjs`): opened Pawikan from the launcher,
+  loaded `sample-doc.pdf`, waited for the document to register, rotated it 90° via
+  `page.rotate`, and exported through the launcher's Download PDF button. The
+  downloaded file was 1,140 bytes and contained `/Rotate 90`. Verdict:
+  `HELPER PDF PASS`.
+
+## Visible branding cleanup — PASS
+
+- All user-visible `PhotoCraft`, `VectorCraft` and `PdfCraft` strings in the four
+  hosted HTML files were replaced with `Binturong`, `Tandikan` and `Pawikan`,
+  including titles, loading/stopped messages and the home-screen app title.
+- The launcher's three upstream `Source` links and the credits line naming the
+  upstream brand were removed.
+- A title lock keeps the animal name in the browser tab when an editor's WASM tries
+  to rename the document. Verified fresh (cache disabled) against both the local
+  server and production: `binturong "Binturong"`, `tandikan "Tandikan"`,
+  `pawikan "Pawikan"` — `TITLE PASS` and `LIVE TITLE PASS`.
+- Internal asset filenames, element IDs, JS API globals and upstream
+  license/NOTICE/ATTRIBUTION files were intentionally kept: changing them would
+  break the editors or remove legally required attribution. None are shown as
+  branding in the interface.
+
 Live URL: https://studio.palawancollective.com/
